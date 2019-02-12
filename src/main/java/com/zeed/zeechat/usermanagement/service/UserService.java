@@ -2,6 +2,7 @@ package com.zeed.zeechat.usermanagement.service;
 
 
 import com.zeed.zeechat.entities.User;
+import com.zeed.zeechat.exception.ZeeChatException;
 import com.zeed.zeechat.repository.UserRepository;
 import com.zeed.zeechat.usermanagement.UserOperation;
 import com.zeed.zeechat.usermanagement.apimodel.UserSignUpResponseModel;
@@ -34,17 +35,33 @@ public class UserService  implements UserOperation {
             return UserSignUpResponseModel.builder().message("User already exist with the same username").build();
         }
 
-        User user = new User();
-        user.setFirstName(signupRequestModel.getFirstName());
-        user.setLastName(signupRequestModel.getLastName());
-        user.setPassword(passwordEncoder.encode(signupRequestModel.getPassword()));
-        user.setEmail(signupRequestModel.getEmail());
-        user.setUsername(signupRequestModel.getUsername());
+        User user = User.builder()
+                .firstName(signupRequestModel.getFirstName())
+                .lastName(signupRequestModel.getLastName())
+                .password(passwordEncoder.encode(signupRequestModel.getPassword()))
+                .email(signupRequestModel.getEmail())
+                .username(signupRequestModel.getUsername()).build();
 
         userRepository.save(user);
 
         return UserSignUpResponseModel.builder()
-                .message("Registration successful").build();
+                .message("Registration successful").successful(true).build();
+    }
+
+    @Override
+    public User findUserByUsername(String username) {
+
+        return userRepository.findTopByUsername(username);
+    }
+
+    @Override
+    public User findUserByUsernameOrEmail(String username, String email) throws ZeeChatException {
+        User user = userRepository.findTopByUsernameOrEmail(username, email);
+
+        if (user == null)
+            throw new ZeeChatException("User not found");
+
+        return user;
     }
 
 

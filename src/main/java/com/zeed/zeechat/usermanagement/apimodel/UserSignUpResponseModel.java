@@ -8,4 +8,6 @@ import lombok.Setter;
 public class UserSignUpResponseModel {
 
     private String message;
+
+    private boolean successful = false;
 }

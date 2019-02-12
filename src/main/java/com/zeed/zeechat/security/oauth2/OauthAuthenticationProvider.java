@@ -3,7 +3,7 @@ package com.zeed.zeechat.security.oauth2;
 import com.zeed.zeechat.entities.User;
 import com.zeed.zeechat.repository.UserRepository;
 import com.zeed.zeechat.security.entity.UserWrapper;
-import com.zeed.zeechat.security.exception.ZeeChatException;
+import com.zeed.zeechat.security.exception.ZeeChatAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -36,11 +36,11 @@ public class OauthAuthenticationProvider implements AuthenticationProvider {
         User user = userRepository.findTopByUsername(username);
 
         if (user == null) {
-            throw new ZeeChatException("Customer not found");
+            throw new ZeeChatAuthenticationException("Customer not found");
         }
 
         if (!customPasswordEncoder.matches(password, user.getPassword())) {
-            throw new ZeeChatException("Username/password incorrect");
+            throw new ZeeChatAuthenticationException("Username/password incorrect");
         }
 
         UsernamePasswordAuthenticationToken tokenAuthentication = new UsernamePasswordAuthenticationToken(UserWrapper.builder().user(user).build(), password, new ArrayList<>());
